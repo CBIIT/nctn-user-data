@@ -1,0 +1,49 @@
+from config import Config
+import requests
+from requests.auth import HTTPBasicAuth
+import json
+import pandas as pd
+import os
+import argparse
+
+parser = argparse.ArgumentParser(description='Extract user data from NCTN')
+parser.add_argument("config_file", help="Name of Configuration File to run the File Uploader")
+args = parser.parse_args()
+config = Config(args.config_file)
+
+user_name_list = []
+login_list = []
+authority_list = []
+project_id_list = []
+request_id_list = []
+
+r = requests.get(config.api, auth = HTTPBasicAuth(config.username, config.password))
+data_set = r.content.decode("utf-8")
+data_list = json.loads(data_set)
+
+for data in data_list:
+    user_name_list.append(data[0])
+    login_list.append(data[1])
+    authority_list.append(data[2])
+    project_id_list.append(data[3])
+    request_id_list.append(data[4])
+
+df = pd.DataFrame()
+df['user_name'] = user_name_list
+df['login'] = login_list
+df['authority'] = authority_list
+df['project_id'] = project_id_list
+df['request_id'] = request_id_list
+
+subfolder_dirsctory = config.output_folder
+if not os.path.exists(subfolder_dirsctory):
+    os.mkdir(subfolder_dirsctory)
+
+#df.to_csv('ctdc_user.csv', sep = "\t", index = False)
+
+new_project_id_list = list(set(project_id_list))
+
+for project_id in new_project_id_list:
+    new_df = df.loc[df['project_id'] == project_id].loc[:, df.columns != 'request_id']
+    file_name = subfolder_dirsctory + 'authentication_file_' + project_id + '.csv.enc'
+    new_df.to_csv(file_name, sep = ",", header=False, index=False)
