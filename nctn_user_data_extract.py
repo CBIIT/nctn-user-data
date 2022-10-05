@@ -5,11 +5,13 @@ import json
 import pandas as pd
 import os
 import argparse
+from bento.common.utils import get_logger
 
 parser = argparse.ArgumentParser(description='Extract user data from NCTN')
 parser.add_argument("config_file", help="Name of Configuration File to run the File Uploader")
 args = parser.parse_args()
 config = Config(args.config_file)
+log = get_logger('NCTN_USER_DATA_EXTRACT')
 
 user_name_list = []
 login_list = []
@@ -21,6 +23,7 @@ r = requests.get(config.api, auth = HTTPBasicAuth(config.username, config.passwo
 data_set = r.content.decode("utf-8")
 data_list = json.loads(data_set)
 
+log.info('Start extracting data files')
 for data in data_list:
     user_name_list.append(data[0])
     login_list.append(data[1])
@@ -47,3 +50,4 @@ for project_id in new_project_id_list:
     new_df = df.loc[df['project_id'] == project_id].loc[:, df.columns != 'request_id']
     file_name = subfolder_dirsctory + 'authentication_file_' + project_id + '.csv.enc'
     new_df.to_csv(file_name, sep = ",", header=False, index=False)
+    log.info('Successfully extract data file {}'.format(os.path.basename(file_name)))

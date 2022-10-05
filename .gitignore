@@ -2,3 +2,4 @@ __pycache__
 authentication_files
 *.csv
 *.pem
+tmp

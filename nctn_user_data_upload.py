@@ -1,9 +1,9 @@
 import pysftp
 import glob
-import logging
 import argparse
 import yaml
 import os
+from bento.common.utils import get_logger
 
 parser = argparse.ArgumentParser(description='Upload NCTN user data')
 parser.add_argument("config_file", help="Name of Configuration File to run the File Uploader")
@@ -13,19 +13,18 @@ with open(args.config_file) as f:
 
 cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
-log = logging.getLogger('NCTN_USER_DATA_UPLOAD')
+log = get_logger('NCTN_USER_DATA_UPLOAD')
 srv = pysftp.Connection(host=config['HOST'], username=config['USERNAME'], private_key=config['PRIVATE_KEY'], cnopts=cnopts)
 remote_path = 'dev'
-log.warning('Start uploading data files')
+log.info('Start uploading data files')
 
 try:
     srv.chdir(remote_path)
 except IOError:
     srv.mkdir(remote_path)
     srv.chdir(remote_path)
-for file in glob.glob(os.path.join(config['AUTHENTICATION_FILE_LOCATION'], '*.enc')):
+for file in glob.glob(os.path.join(config['AUTHENTICATION_FILE_FOLDER'], '*.enc')):
     srv.put(file)
-    log.info('Successfully upload data file {}'.format(os.path.splitext(file)[0]))
+    log.info('Successfully upload data file {}'.format(os.path.basename(file)))
 # Close the connection
-log.info('All data files successfully uploaded')
 srv.close()
