@@ -3,3 +3,5 @@ authentication_files
 *.csv
 *.pem
 tmp
+config/config_extract.yaml
+config/config_upload.yaml

@@ -1,0 +1,4 @@
+HOST: host
+USERNAME: ctdc_user
+PRIVATE_KEY: private_key.pem
+AUTHENTICATION_FILE_FOLDER: ./authentication_files/
