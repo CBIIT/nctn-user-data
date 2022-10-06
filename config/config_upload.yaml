@@ -1,0 +1,4 @@
+HOST: sftp.datacommons.io
+USERNAME: ctdc_test
+PRIVATE_KEY: ./config/ctdc_sftp_private.pem
+AUTHENTICATION_FILE_FOLDER: ./authentication_files/
