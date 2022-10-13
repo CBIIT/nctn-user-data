@@ -23,7 +23,7 @@ try:
 except IOError:
     srv.mkdir(remote_path)
     srv.chdir(remote_path)
-for file in glob.glob(os.path.join(config['AUTHENTICATION_FILE_FOLDER'], '*.enc')):
+for file in glob.glob(os.path.join(config['AUTHENTICATION_FILE_FOLDER'], '*.csv')):
     srv.put(file)
     log.info('Successfully upload data file {}'.format(os.path.basename(file)))
 # Close the connection
