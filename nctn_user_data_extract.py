@@ -20,10 +20,6 @@ project_id_list = []
 request_id_list = []
 roles = []
 email = []
-phone = []
-status = []
-permission_set = []
-created = []
 
 r = requests.get(config.api, auth = HTTPBasicAuth(config.username, config.password))
 data_set = r.content.decode("utf-8")
@@ -38,10 +34,6 @@ for data in data_list:
     request_id_list.append(data[4])
     roles.append('')
     email.append('')
-    phone.append('')
-    status.append('')
-    permission_set.append('')
-    created.append('')
 
 df = pd.DataFrame()
 df['user name'] = user_name_list
@@ -49,11 +41,7 @@ df['login'] = login_list
 df['authority'] = authority_list
 df['roles'] = roles
 df['email'] = email
-df['phone'] = phone
-df['status'] = status
 df['project_id'] = project_id_list
-df['Permission set'] = permission_set
-df['created'] = created
 df['request_id'] = request_id_list
 
 subfolder_dirsctory = config.output_folder
