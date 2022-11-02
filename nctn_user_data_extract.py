@@ -60,16 +60,20 @@ for project_id in new_project_id_list:
     new_df = df.loc[df['project_id'] == project_id].loc[:, df.columns != 'request_id']
     new_df = new_df.drop_duplicates()
     new_df = new_df.replace(r'^\s*$', np.nan, regex=True)
+    log.info('Rows deleted because the "login" or the "authority" values are empty')
+    log.info(new_df[new_df[['login', 'authority']].isna().any(axis=1)])
     new_df = new_df.dropna(subset=['login', 'authority'])
-    new_df = new_df.reset_index()
+    new_df = new_df.reset_index(drop=True)
     login_index_list = []
     login_index = 0
     for login in new_df['login']:
         if not re.fullmatch(regex, login):
             login_index_list.append(login_index)
         login_index += 1
-    new_df = new_df.drop(df.index[login_index_list])
-    new_df = new_df.reset_index()
+    #drop_dataframe = new_df.iloc[login_index_list]
+    log.info('Rows deleted because the values provided in the "login" column are not in email format')
+    log.info(new_df.iloc[login_index_list])
+    new_df = new_df.drop(new_df.index[login_index_list])
     if (len(new_df) > 0):
         file_name = subfolder_dirsctory + 'authentication_file_' + project_id + '.csv'
         new_df.to_csv(file_name, sep = ",", header=True, index=False)
