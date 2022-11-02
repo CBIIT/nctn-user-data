@@ -15,7 +15,7 @@ cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
 log = get_logger('NCTN_USER_DATA_UPLOAD')
 srv = pysftp.Connection(host=config['HOST'], username=config['USERNAME'], private_key=config['PRIVATE_KEY'], cnopts=cnopts)
-remote_path = 'dev'
+remote_path = ''
 log.info('Start uploading data files')
 
 try:
