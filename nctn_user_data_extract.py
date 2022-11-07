@@ -6,6 +6,8 @@ import pandas as pd
 import os
 import argparse
 from bento.common.utils import get_logger
+import numpy as np
+import re
 
 parser = argparse.ArgumentParser(description='Extract user data from NCTN')
 parser.add_argument("config_file", help="Name of Configuration File to run the File Uploader")
@@ -18,6 +20,8 @@ login_list = []
 authority_list = []
 project_id_list = []
 request_id_list = []
+roles = []
+email = []
 
 r = requests.get(config.api, auth = HTTPBasicAuth(config.username, config.password))
 data_set = r.content.decode("utf-8")
@@ -30,11 +34,15 @@ for data in data_list:
     authority_list.append(data[2])
     project_id_list.append(data[3])
     request_id_list.append(data[4])
+    roles.append('')
+    email.append('')
 
 df = pd.DataFrame()
-df['user_name'] = user_name_list
+df['user name'] = user_name_list
 df['login'] = login_list
 df['authority'] = authority_list
+df['roles'] = roles
+df['email'] = email
 df['project_id'] = project_id_list
 df['request_id'] = request_id_list
 
@@ -45,9 +53,28 @@ if not os.path.exists(subfolder_dirsctory):
 #df.to_csv('ctdc_user.csv', sep = "\t", index = False)
 
 new_project_id_list = list(set(project_id_list))
+# for validating an Email
+regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
 for project_id in new_project_id_list:
     new_df = df.loc[df['project_id'] == project_id].loc[:, df.columns != 'request_id']
-    file_name = subfolder_dirsctory + 'authentication_file_' + project_id + '.csv.enc'
-    new_df.to_csv(file_name, sep = ",", header=False, index=False)
-    log.info('Successfully extract data file {}'.format(os.path.basename(file_name)))
+    new_df = new_df.drop_duplicates()
+    new_df = new_df.replace(r'^\s*$', np.nan, regex=True)
+    log.info('Rows deleted because the "login" or the "authority" values are empty')
+    log.info(new_df[new_df[['login', 'authority']].isna().any(axis=1)])
+    new_df = new_df.dropna(subset=['login', 'authority'])
+    new_df = new_df.reset_index(drop=True)
+    login_index_list = []
+    login_index = 0
+    for login in new_df['login']:
+        if not re.fullmatch(regex, login):
+            login_index_list.append(login_index)
+        login_index += 1
+    #drop_dataframe = new_df.iloc[login_index_list]
+    log.info('Rows deleted because the values provided in the "login" column are not in email format')
+    log.info(new_df.iloc[login_index_list])
+    new_df = new_df.drop(new_df.index[login_index_list])
+    if (len(new_df) > 0):
+        file_name = subfolder_dirsctory + 'authentication_file_' + project_id + '.csv'
+        new_df.to_csv(file_name, sep = ",", header=True, index=False)
+        log.info('Successfully extract data file {}'.format(os.path.basename(file_name)))
