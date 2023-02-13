@@ -5,3 +5,5 @@ authentication_files
 tmp
 config/config_extract.yaml
 config/config_upload.yaml
+.gitsecret/keys/random_seed
+!*.secret

@@ -15,7 +15,7 @@ cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
 log = get_logger('NCTN_USER_DATA_UPLOAD')
 srv = pysftp.Connection(host=config['HOST'], username=config['USERNAME'], private_key=config['PRIVATE_KEY'], cnopts=cnopts)
-remote_path = 'dev'
+remote_path = ''
 log.info('Start uploading data files')
 
 try:
@@ -23,7 +23,7 @@ try:
 except IOError:
     srv.mkdir(remote_path)
     srv.chdir(remote_path)
-for file in glob.glob(os.path.join(config['AUTHENTICATION_FILE_FOLDER'], '*.enc')):
+for file in glob.glob(os.path.join(config['AUTHENTICATION_FILE_FOLDER'], '*.csv')):
     srv.put(file)
     log.info('Successfully upload data file {}'.format(os.path.basename(file)))
 # Close the connection

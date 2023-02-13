@@ -6,3 +6,4 @@ yaml
 log
 glob
 pysftp
+numpy
